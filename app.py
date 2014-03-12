@@ -23,18 +23,25 @@ def simple_sentiment(counter):
         return "is still unclear."
 
 def analyze_sentiment(name, counter):
+    """
+    Compare the relative frequency of each token in each stream. If it's more than the average 
+    ratio (calculated against no. of sentences) then print out a descriptor.
+    """
     descriptors = {
-        'QUESTION': 'confused',
-        'FULLSTOP': 'forthright',
-        'BANG': 'excited',
-        'SMILEY': 'cheery',
-        'FROWNY': 'glum',
-        'ALLCAPS': 'emphatic'
+        'QUESTION': 'confused'
+       ,'FULLSTOP': 'forthright'
+       ,'BANG': 'excited'
+       ,'SMILEY': 'cheery'
+       ,'FROWNY': 'glum'
+       ,'ALLCAPS': 'emphatic'
+       ,'WINKY': 'coy'
     }
     stream_analysis = ""
     for token, count in counter.iteritems():
         ratio = float(count) / counter['sentences'] 
         if token == 'sentences':
+            continue
+        if not descriptors[token]:
             continue
         elif (1.5 * averages[token]) < ratio:
             stream_analysis += name + " is very " + descriptors[token] + ". "
@@ -46,13 +53,16 @@ def analyze_sentiment(name, counter):
  
 
 def update_counters():
+    all_counts.clear()
     for f in db.find():
         counters[f.get('name')] = f.get('PUNC') or {}
-    for s, c in counters.iteritems():
+    for _, c in counters.iteritems():
+        if not c:
+            continue
+        print "Updating all_counts with " + str(c)
         all_counts.update(c)
     for token, count in all_counts.iteritems():
         averages[token] = float(count) / all_counts['sentences']
-
 
     print str(all_counts)
 @app.route("/")

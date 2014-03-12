@@ -32,7 +32,9 @@ def sanitize_token(t):
     ,"?" : "QUESTION"
     ,"." : "FULLSTOP"
     ,":)": "SMILEY"
-    ,":(": "FROWNY" }
+    ,":(": "FROWNY" 
+    ,";)": "WINKY"
+}
     return TOKEN_NAMES.get(t) or t
 
 def allcaps(t):
@@ -53,7 +55,7 @@ client = zulip.Client(email="punc-bot@students.hackerschool.com",
 db_connection = MongoClient('localhost', 27017)
 db = db_connection['punc']
 punc_db = db.counters
-tokenizer = RegexpTokenizer('[?!.]|:\)|:\(')
+tokenizer = RegexpTokenizer('[?!.]|:\)|:\(|;\)')
 sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
 counters = {}
 
