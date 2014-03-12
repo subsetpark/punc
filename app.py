@@ -38,14 +38,18 @@ def analyze_sentiment(name, counter):
     }
     stream_analysis = ""
     for token, count in counter.iteritems():
-        ratio = float(count) / counter['sentences'] 
+        ratio = float(count) / counter['sentences']
+        average = averages[token]
+        # import pdb
+        # pdb.set_trace() 
         if token == 'sentences':
             continue
         if not descriptors[token]:
             continue
-        elif (1.5 * averages[token]) < ratio:
+        print "comparing %s count of %.4f against average %.4f for %s" % (token, ratio, average, name)
+        if (ratio / average) > 1.4:
             stream_analysis += name + " is very " + descriptors[token] + ". "
-        elif averages[token] < ratio <= (1.5 * averages[token]):
+        elif (ratio / average) > 1:
             stream_analysis += name + " is rather " + descriptors[token] + ". "
     if not stream_analysis:
         stream_analysis = name + " is pretty dull."
@@ -57,14 +61,11 @@ def update_counters():
     for f in db.find():
         counters[f.get('name')] = f.get('PUNC') or {}
     for _, c in counters.iteritems():
-        if not c:
-            continue
-        print "Updating all_counts with " + str(c)
         all_counts.update(c)
     for token, count in all_counts.iteritems():
         averages[token] = float(count) / all_counts['sentences']
 
-    print str(all_counts)
+    print "all counts: " + str(all_counts)
 @app.route("/")
 def sentiment_analysis():
     update_counters()

@@ -1,5 +1,5 @@
 import zulip
-import re
+import re, itertools
 from collections import Counter
 from pymongo import MongoClient
 from nltk.tokenize import RegexpTokenizer
@@ -19,8 +19,9 @@ def update_count(text, stream):
     """
     Process a new line of text from Zulip.
     """
-    sentences = sent_detector.tokenize(text)
-    tokens  = map(sanitize_token, tokenizer.tokenize(text))
+    tokens = [sanitize_token(token) 
+                for sentence in sent_detector.tokenize(text) 
+                for token in tokenizer.tokenize(sentence)]
     tokens.extend(['ALLCAPS' for t in sentences if allcaps(t)])
     counters[stream].update(tokens)
     counters[stream].update({'sentences': len(sentences)})
@@ -55,7 +56,7 @@ client = zulip.Client(email="punc-bot@students.hackerschool.com",
 db_connection = MongoClient('localhost', 27017)
 db = db_connection['punc']
 punc_db = db.counters
-tokenizer = RegexpTokenizer('[?!.]|:\)|:\(|;\)')
+tokenizer = RegexpTokenizer(r'\?$|\!$]|:\)|:\(|;\)|\.$')
 sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
 counters = {}
 
