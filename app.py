@@ -1,8 +1,10 @@
-from flask import Flask
+from flask import Flask, render_template
 import punc
 import pymongo
 import collections
 app = Flask(__name__)
+app.config.from_object(__name__)
+app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 db_connection = pymongo.MongoClient('localhost', 27017)
 db = db_connection.punc.counters
@@ -11,18 +13,18 @@ counters = {}
 all_counts = collections.Counter()
 averages= {}
 
+def update_counters():
+    all_counts.clear()
+    for f in db.find():
+        counters[f.get('name')] = f.get('PUNC') or {}
+    for _, c in counters.iteritems():
+        all_counts.update(c)
+    for token, count in all_counts.iteritems():
+        averages[token] = float(count) / all_counts['sentences']
 
-def simple_sentiment(counter):
-    if counter.get('FULLSTOP') or 0 > max(counter.get('QUESTION') or 0, counter.get('BANG') or 0):
-        return "is very forthright."
-    elif counter.get('QUESTION') or 0 > max(counter.get('FULLSTOP') or 0, counter.get('BANG') or 0):
-        return "is full of questions."
-    elif counter.get('BANG') or 0 > max(counter.get('FULLSTOP') or 0, counter.get('QUESTION') or 0):
-        return "is very excited."
-    else:
-        return "is still unclear."
+    print "all counts: " + str(all_counts)
 
-def analyze_sentiment(name, counter):
+def analyze_sentiment(counter):
     """
     Compare the relative frequency of each token in each stream. If it's more than the average 
     ratio (calculated against no. of sentences) then print out a descriptor.
@@ -36,7 +38,7 @@ def analyze_sentiment(name, counter):
        ,'ALLCAPS': 'emphatic'
        ,'WINKY': 'coy'
     }
-    stream_analysis = ""
+    stream_analysis = []
     for token, count in counter.iteritems():
         ratio = float(count) / counter['sentences']
         average = averages[token]
@@ -46,36 +48,23 @@ def analyze_sentiment(name, counter):
             continue
         if not descriptors[token]:
             continue
-        print "comparing %s count of %.4f against average %.4f for %s" % (token, ratio, average, name)
-        if (ratio / average) > 1.5:
-            stream_analysis += name + " is very " + descriptors[token] + ". "
+        if (ratio / average) > 2:
+            stream_analysis.append("is very %s." % descriptors[token])
         elif (ratio / average) > 1:
-            stream_analysis += name + " is rather " + descriptors[token] + ". "
+            stream_analysis.append("is rather %s." % descriptors[token])
     if not stream_analysis:
-        stream_analysis = name + " is pretty dull."
+        stream_analysis = ["is pretty dull."]
     return stream_analysis
- 
 
-def update_counters():
-    all_counts.clear()
-    for f in db.find():
-        counters[f.get('name')] = f.get('PUNC') or {}
-    for _, c in counters.iteritems():
-        all_counts.update(c)
-    for token, count in all_counts.iteritems():
-        averages[token] = float(count) / all_counts['sentences']
-
-    print "all counts: " + str(all_counts)
 @app.route("/")
 def sentiment_analysis():
     update_counters()
-    response = "<html><body>"
+    entries = [{'name': name, 'sentiment': analyze_sentiment(counter)} 
+                for name, counter in counters.iteritems()]
     for name, counter in counters.iteritems():
         print name + ": " + str(counter)
-        response += ("<p>" + analyze_sentiment(name, counter) + "</p>")
-
-    response += "</body></html>"
-    return response
+    
+    return render_template('counters.html',entries=entries)
 
 if __name__ == "__main__":
     app.run()
