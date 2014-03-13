@@ -47,7 +47,7 @@ def analyze_sentiment(name, counter):
         if not descriptors[token]:
             continue
         print "comparing %s count of %.4f against average %.4f for %s" % (token, ratio, average, name)
-        if (ratio / average) > 1.4:
+        if (ratio / average) > 1.5:
             stream_analysis += name + " is very " + descriptors[token] + ". "
         elif (ratio / average) > 1:
             stream_analysis += name + " is rather " + descriptors[token] + ". "

@@ -19,8 +19,9 @@ def update_count(text, stream):
     """
     Process a new line of text from Zulip.
     """
+    sentences = sent_detector.tokenize(text)
     tokens = [sanitize_token(token) 
-                for sentence in sent_detector.tokenize(text) 
+                for sentence in sentences 
                 for token in tokenizer.tokenize(sentence)]
     tokens.extend(['ALLCAPS' for t in sentences if allcaps(t)])
     counters[stream].update(tokens)
