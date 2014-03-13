@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block body %}
+<p>Punc is a Zulip bot written in Python that listens to its favorite streams and gathers simple sentiment data from the incoming messages. This Flask app reads that data and presents an analysis of the relative character of each stream.</p> 
+  <ul class=entries>
+  {% for entry in entries %}
+    <li><h2>{{ entry.name }}</h2>
+    {% for slug in entry.sentiment %}
+        {{entry.name}} {{ slug }}
+        {% endfor %}</li>
+  {% else %}
+    <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+  </ul>
+{% endblock %}
