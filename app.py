@@ -42,8 +42,6 @@ def analyze_sentiment(counter):
     for token, count in counter.iteritems():
         ratio = float(count) / counter['sentences']
         average = averages[token]
-        # import pdb
-        # pdb.set_trace() 
         if token == 'sentences':
             continue
         if not descriptors[token]:
