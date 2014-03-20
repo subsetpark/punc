@@ -54,9 +54,9 @@ class Viewer(object):
             if token not in descriptors:
                 continue
             if (ratio / average) > 2:
-                stream_analysis.append("is very %s." % descriptors[token])
+                stream_analysis.append("is very <em>%s.</em>" % descriptors[token])
             elif (ratio / average) > 1:
-                stream_analysis.append("is rather %s." % descriptors[token])
+                stream_analysis.append("is rather <em>%s.</em>" % descriptors[token])
         if not stream_analysis:
             stream_analysis = ["is pretty dull."]
         if 'glum' in " ".join(stream_analysis) and 'cheery' in " ".join(stream_analysis):

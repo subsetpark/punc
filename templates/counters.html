@@ -33,7 +33,7 @@ var chart = test()
   {% for entry in entries %}
     <li><h2>{{ entry.name }}</h2>
     {% for slug in entry.sentiment %}
-        {{entry.name}} {{ slug }}
+        {{entry.name}} {{ slug|safe }}
         
         {% endfor %}</li>
         <svg id={{ entry.name|safe }}>
