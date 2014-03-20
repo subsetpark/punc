@@ -1,18 +1,58 @@
 {% extends "layout.html" %}
+
 {% block body %}
+
+
+<script>
+
+var data = {{ data|safe }}
+var avg = {{ avg|safe }}
+function test() {
+    var chart = nv.models.multiBarChart()
+      .transitionDuration(350)
+      .reduceXTicks(false)   //If 'false', every single x-axis tick label will be rendered.
+      .rotateLabels(45)      //Angle to rotate x-axis labels.
+      .showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+      .groupSpacing(0.5)    //Distance between each group of bars.
+    ;
+
+    // chart.xAxis
+    //     .tickFormat(d3.format(',f'));
+
+    chart.yAxis
+        .tickFormat(d3.format(',.3f'));
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+};
+
+var chart = test()
+
+</script>
+
 <p>Punc is a Zulip bot written in Python that listens to its favorite streams and gathers simple sentiment data from the incoming messages. This Flask app reads that data and presents an analysis of the relative character of each stream.</p> 
+
   <ul class=entries>
   {% for entry in entries %}
     <li><h2>{{ entry.name }}</h2>
     {% for slug in entry.sentiment %}
         {{entry.name}} {{ slug }}
+        
         {% endfor %}</li>
+        <svg id={{ entry.name|safe }}>
+        </svg>
+        
+        <script>
+
+        d3.select('svg#{{ entry.name|safe }}')
+            .datum([data[{{loop.index0}}], avg])
+            .call(chart);
+        </script>
   {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
   {% endfor %}
   </ul>
-  <p>importing raw data</p>
-  <script>
-  var data = {{ data|safe }}
-  </script>
+
+
 {% endblock %}

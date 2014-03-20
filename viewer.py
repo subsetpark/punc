@@ -61,6 +61,24 @@ class Viewer(object):
             stream_analysis = ["is pretty dull."]
         return stream_analysis
 
+    def prepare_graphs(self):
+        graph_data = []
+        for name, counter in self.counters.iteritems():
+            counter_data = {'key' : name, 'values' : []}
+            for token, count in counter.iteritems():
+                if token == 'sentences':
+                    continue
+                ratio = float(count) / counter['sentences']
+                counter_data['values'].append({'x' : token, 'y' : ratio}) 
+            graph_data.append(counter_data)
+
+        average_data = {'key' : 'avg', 'values' : []}
+        for token, count in self.all_counts.iteritems():
+            if token == 'sentences':
+                continue
+            average_data['values'].append({'x' : token, 'y' : self.averages[token]})
+        return graph_data, average_data
+
 import os
 if 'PUNC_DB' in os.environ:
     db_ip = os.environ['PUNC_DB'] 
@@ -73,8 +91,9 @@ def sentiment_analysis():
                 for name, counter in viewer.counters.items()]
     for name, counter in viewer.counters.iteritems():
         print name + ": " + str(counter)
+    graph_data, average_data = viewer.prepare_graphs() 
     
-    return render_template('counters.html',entries=entries, data=json.dumps(viewer.counters))
+    return render_template('counters.html',entries=entries, data=json.dumps(graph_data), avg=json.dumps(average_data))
 
 if __name__ == "__main__":
     app.debug = True
