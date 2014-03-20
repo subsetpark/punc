@@ -11,4 +11,8 @@
     <li><em>Unbelievable.  No entries here so far</em>
   {% endfor %}
   </ul>
+  <p>importing raw data</p>
+  <script>
+  var data = {{ data|safe }}
+  </script>
 {% endblock %}

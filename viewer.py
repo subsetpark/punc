@@ -2,7 +2,7 @@ from flask import Flask, render_template
 import punc
 import pymongo
 import collections
-
+import json
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -74,7 +74,7 @@ def sentiment_analysis():
     for name, counter in viewer.counters.iteritems():
         print name + ": " + str(counter)
     
-    return render_template('counters.html',entries=entries)
+    return render_template('counters.html',entries=entries, data=json.dumps(viewer.counters))
 
 if __name__ == "__main__":
     app.debug = True
