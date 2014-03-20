@@ -59,13 +59,15 @@ class Viewer(object):
                 stream_analysis.append("is rather %s." % descriptors[token])
         if not stream_analysis:
             stream_analysis = ["is pretty dull."]
+        if 'glum' in " ".join(stream_analysis) and 'cheery' in " ".join(stream_analysis):
+            stream_analysis.append("is just full of emotion!")
         return stream_analysis
 
     def prepare_graphs(self):
         graph_data = []
         for name, counter in self.counters.iteritems():
             counter_data = {'key' : name, 'values' : []}
-            for token, count in counter.iteritems():
+            for token, count in iter(sorted(counter.iteritems())):
                 if token == 'sentences':
                     continue
                 ratio = float(count) / counter['sentences']
@@ -73,7 +75,7 @@ class Viewer(object):
             graph_data.append(counter_data)
 
         average_data = {'key' : 'avg', 'values' : []}
-        for token, count in self.all_counts.iteritems():
+        for token, count in iter(sorted(self.all_counts.iteritems())):
             if token == 'sentences':
                 continue
             average_data['values'].append({'x' : token, 'y' : self.averages[token]})
