@@ -7,6 +7,6 @@
 ## The app
 the `punc` web app is a Flask application that reads from `punc`'s database and runs some analysis on the running count. It compares the relative frequency of each token in a stream to the overall average frequency of that stream, and then uses this information to describe the overall tenor of that stream.
 
-![screenshot](https://www.dropbox.com/s/mybpc3ofgbd3a4e/Screenshot%202014-03-18%2017.23.31.png)
+You can view the Punc web app at [punc.herokuapp.com](http://punc.herokuapp.com).
 
 In other words, punc is data-driven journalism at its finest.
